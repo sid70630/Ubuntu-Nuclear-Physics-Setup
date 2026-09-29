@@ -1,17 +1,12 @@
-# Nuclear-physics software setup on Ubuntu
+# Software setup on Ubuntu
 
-An installation guide for a 64-bit Ubuntu workstation used for nuclear-physics analysis and simulation.
+An installation guide for a 64-bit Ubuntu.
 
 ## Supported systems
 
 - Ubuntu 22.04.5 LTS (64-bit)
 - Ubuntu 24.04 LTS (64-bit)
 - Windows 11 with WSL 2 and Ubuntu 22.04 or newer
-
-Commands should also work on later Ubuntu LTS releases unless a package has been renamed. Run each section separately and read any installer output before continuing.
-
-> [!IMPORTANT]
-> Do not paste an entire section into a terminal without reading it. Software versions, download filenames and dependencies change over time. Follow the linked official documentation when it differs from this guide.
 
 ## Contents
 

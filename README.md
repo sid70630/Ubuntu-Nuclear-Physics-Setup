@@ -1,430 +1,315 @@
-# Nuclear-physics software setup on Ubuntu
+# Ubuntu Nuclear Physics Setup
 
-An installation guide for a 64-bit Ubuntu workstation used for nuclear-physics analysis and simulation.
+Installation notes for nuclear-physics software on a native Ubuntu 24.04 LTS system.
 
-## Supported systems
-
-- Ubuntu 22.04.5 LTS (64-bit)
-- Ubuntu 24.04 LTS (64-bit)
-
-Commands should also work on later Ubuntu LTS releases unless a package has been renamed. Run each section separately and read any installer output before continuing.
-
-> [!IMPORTANT]
-> Do not paste an entire section into a terminal without reading it. Software versions, download filenames and dependencies change over time. Follow the linked official documentation when it differs from this guide.
+The commands in this repository were tested on Ubuntu 24.04.2 LTS (x86_64). Install one program at a time when diagnosing a problem. The toolkit installer is provided for a new machine after the individual procedures have been reviewed.
 
 ## Contents
 
-1. [Install or update Ubuntu](#1-install-or-update-ubuntu)
-2. [Install common development tools](#2-install-common-development-tools)
-3. [Install CERN ROOT](#3-install-cern-root)
-4. [Install GRSISort](#4-install-grsisort)
-5. [Install Geant4](#5-install-geant4)
-6. [Install GOSIA](#6-install-gosia)
-7. [Install GREMLIN](#7-install-gremlin)
-8. [Install RadWare](#8-install-radware)
-9. [Install NuShellX](#9-install-nushellx)
-10. [Install Python and Jupyter](#10-install-python-and-jupyter)
-11. [Troubleshooting and maintenance](#11-troubleshooting-and-maintenance)
+- [Install everything](#install-everything)
+- [ROOT](#root)
+- [GRSISort](#grsisort)
+- [GOSIA and GOSIA2](#gosia-and-gosia2)
+- [GREMLIN](#gremlin)
+- [RadWare](#radware)
+- [Geant4](#geant4)
+- [CUBIX](#cubix)
+- [Nilsson code](#nilsson-code)
+- [Nuclear Chart Plotter](#nuclear-chart-plotter)
+- [Python and JupyterLab](#python-and-jupyterlab)
+- [LISE++](#lise)
+- [NuShellX](#nushellx)
+- [Licences and references](#licences-and-references)
 
-## 1. Install or update Ubuntu
+## Install everything
 
-Install a supported 64-bit Ubuntu LTS release from the [official Ubuntu download page](https://ubuntu.com/download/desktop).
+Clone this repository and run:
 
-After installation:
+```bash
+git clone https://github.com/sid70630/Ubuntu-Nuclear-Physics-Setup.git
+cd Ubuntu-Nuclear-Physics-Setup
+bash install-toolkit.sh
+```
+
+The script installs each supported package in sequence. Existing installation directories are not overwritten. Geant4 is included and can take a long time to compile. LISE++, NuShellX and CUBIX remain manual steps.
+
+Check the installation at any time with:
+
+```bash
+bash check-installation.sh
+```
+
+Open a new terminal after the installer finishes.
+
+## ROOT
+
+Original project: [CERN ROOT](https://root.cern/)
+
+Install the required packages:
 
 ```bash
 sudo apt update
-sudo apt full-upgrade
-sudo reboot
+sudo apt install -y \
+  binutils cmake dpkg-dev g++ gcc git wget \
+  libssl-dev libx11-dev libxext-dev libxft-dev libxpm-dev \
+  python3 libtbb-dev libvdt-dev libgif-dev
 ```
 
-## 2. Install common development tools
+Download the Ubuntu 24.04 binary release used in this guide:
 
 ```bash
-sudo apt update
-sudo apt install --yes \
-  build-essential cmake git curl wget pkg-config \
-  gfortran python3 python3-pip python3-venv \
-  libx11-dev libxpm-dev libxft-dev libxext-dev \
-  libssl-dev libxml2-dev libgsl-dev
+cd ~
+wget https://root.cern/download/root_v6.32.24.Linux-ubuntu24.04-x86_64-gcc13.3.tar.gz
+tar -xzf root_v6.32.24.Linux-ubuntu24.04-x86_64-gcc13.3.tar.gz
+source ~/root/bin/thisroot.sh
 ```
 
-Check the main tools:
+Add ROOT to future terminal sessions:
 
 ```bash
-gcc --version
-g++ --version
-gfortran --version
-cmake --version
-git --version
-python3 --version
+printf '\n# CERN ROOT 6.32.24\nsource "$HOME/root/bin/thisroot.sh"\n' >> ~/.bashrc
 ```
 
-## 3. Install CERN ROOT
-
-ROOT provides official precompiled binaries and Conda packages. These are preferable to copying commands for an old, fixed ROOT release.
-
-### Option A: precompiled ROOT binary
-
-1. Open the [official ROOT installation page](https://root.cern/install/).
-2. Select a binary built for your exact Ubuntu release and architecture.
-3. Install the dependencies listed on the [ROOT dependencies page](https://root.cern/install/dependencies/).
-4. Download and extract the archive. For example, after replacing `<root-archive>` with the downloaded filename:
-
-```bash
-mkdir -p "$HOME/software/root"
-tar -xzf "$HOME/Downloads/<root-archive>.tar.gz" \
-  --strip-components=1 -C "$HOME/software/root"
-```
-
-Activate ROOT for the current terminal:
-
-```bash
-source "$HOME/software/root/bin/thisroot.sh"
-```
-
-To activate it automatically, add the command once:
-
-```bash
-printf '\nsource "$HOME/software/root/bin/thisroot.sh"\n' >> "$HOME/.bashrc"
-```
-
-Test the installation:
+Test:
 
 ```bash
 root-config --version
-root -l -q
+root -l -b -q -e 'std::cout << "ROOT test: " << gROOT->GetVersion() << std::endl;'
+python3 -c 'import ROOT; print("PyROOT test:", ROOT.gROOT.GetVersion())'
 ```
 
-### Option B: Conda environment
+See the [ROOT installation page](https://root.cern/install/) before using another Ubuntu or compiler version.
 
-Install Miniforge from its [official repository](https://github.com/conda-forge/miniforge), then create an isolated environment:
+## GRSISort
 
-```bash
-conda create --name root-env --channel conda-forge root
-conda activate root-env
-root-config --version
-```
+Original project: [GRIFFINCollaboration/GRSISort](https://github.com/GRIFFINCollaboration/GRSISort)
 
-Do not mix a Conda ROOT installation with another ROOT installation in the same terminal.
-
-## 4. Install GRSISort
-
-GRSISort is a ROOT-based nuclear-physics analysis toolkit. Install and activate a compatible ROOT version before continuing.
-
-Install the BLAS runtime and development packages:
+GRSISort requires ROOT.
 
 ```bash
-sudo apt update
-sudo apt install --yes libblas3 libblas-dev
-```
-
-Download GRSISort into your home directory:
-
-```bash
-cd "$HOME"
-git clone https://github.com/GRIFFINCollaboration/GRSISort.git
-cd GRSISort
-```
-
-Activate its environment and compile:
-
-```bash
-source thisgrsi.sh
+sudo apt install -y libblas-dev liblapack-dev
+cd ~
+git clone --recursive https://github.com/GRIFFINCollaboration/GRSISort.git
+cd ~/GRSISort
+source ./thisgrsi.sh
 make -j"$(nproc)"
 ```
 
-Add the setup command once so that new Bash sessions can find GRSISort:
+Add GRSISort to future terminal sessions:
 
 ```bash
-printf '\nsource "$HOME/GRSISort/thisgrsi.sh"\n' >> "$HOME/.bashrc"
-source "$HOME/.bashrc"
+printf '\n# GRSISort\nsource "$HOME/GRSISort/thisgrsi.sh"\n' >> ~/.bashrc
 ```
 
-Test it:
+Test:
 
 ```bash
-grsisort -l -q
+grsisort --version
+ldd "$(command -v grsisort)" | grep "not found" || echo "No missing libraries"
 ```
 
-ROOT commands should also work inside GRSISort. Older GRSISort branches may require an older compatible ROOT release, so confirm the supported combination before changing either version.
+## GOSIA and GOSIA2
 
-- [GRSISort setup guide](https://github.com/GRIFFINCollaboration/GRSISort/wiki/Setting-up-GRSISort)
-- [GRSISort troubleshooting](https://github.com/GRIFFINCollaboration/GRSISort/wiki/troubleshooting)
-
-## 5. Install Geant4
-
-Use the current Geant4 release from the [official download page](https://geant4.web.cern.ch/download/). Do not install the old Geant4 10.06 release unless a specific project requires it.
-
-Install typical build and visualisation dependencies:
+Source archive: [GOSIA versions maintained by Nigel Warr](https://apps.ikp.uni-koeln.de/~warr/gosia/)
 
 ```bash
-sudo apt update
-sudo apt install --yes \
-  build-essential cmake ninja-build \
-  libxerces-c-dev libexpat1-dev \
-  libx11-dev libxmu-dev libxi-dev \
-  qt6-base-dev
+sudo apt install -y gfortran
+mkdir -p ~/GOSIA
+cd ~/GOSIA
+wget https://apps.ikp.uni-koeln.de/~warr/gosia/gosia_20110524.13.f
+wget https://apps.ikp.uni-koeln.de/~warr/gosia/gosia2_20081208.27.f
+gfortran -O2 gosia_20110524.13.f -o gosia
+gfortran -O2 gosia2_20081208.27.f -o gosia2
+printf '\n# GOSIA and GOSIA2\nexport PATH="$HOME/GOSIA:$PATH"\n' >> ~/.bashrc
 ```
 
-After downloading `geant4-v<VERSION>.tar.gz`, replace `<VERSION>` below with the downloaded version number:
+Test:
 
 ```bash
-mkdir -p "$HOME/software/geant4/source" \
-         "$HOME/software/geant4/build" \
-         "$HOME/software/geant4/install"
-
-tar -xzf "$HOME/Downloads/geant4-v<VERSION>.tar.gz" \
-  --strip-components=1 -C "$HOME/software/geant4/source"
-
-cmake -S "$HOME/software/geant4/source" \
-      -B "$HOME/software/geant4/build" \
-      -G Ninja \
-      -DCMAKE_INSTALL_PREFIX="$HOME/software/geant4/install" \
-      -DGEANT4_INSTALL_DATA=ON \
-      -DGEANT4_USE_OPENGL_X11=ON \
-      -DGEANT4_USE_QT=ON
-
-cmake --build "$HOME/software/geant4/build" --parallel
-cmake --install "$HOME/software/geant4/build"
-source "$HOME/software/geant4/install/bin/geant4.sh"
+ldd ~/GOSIA/gosia | grep "not found" || echo "GOSIA: no missing libraries"
+ldd ~/GOSIA/gosia2 | grep "not found" || echo "GOSIA2: no missing libraries"
 ```
 
-Verify the installation:
+The [GOSIA project page](https://www.slcj.uw.edu.pl/en/gosia-code/) should also be consulted for documentation and references.
+
+## GREMLIN
+
+Original source: [GREMLIN on the Rochester GOSIA page](https://www.pas.rochester.edu/~cline/Research/GOSIA.htm)
+
+```bash
+sudo apt install -y gfortran
+mkdir -p ~/GREMLIN
+cd ~/GREMLIN
+wget https://www.pas.rochester.edu/~cline/Research/GOSIAcodes/gremlin.f
+gfortran -O2 -std=legacy -ffixed-line-length-none gremlin.f -o gremlin
+printf '\n# GREMLIN\nexport PATH="$HOME/GREMLIN:$PATH"\n' >> ~/.bashrc
+```
+
+Test:
+
+```bash
+printf '0\n' | ~/GREMLIN/gremlin
+```
+
+## RadWare
+
+Original project: [radforddc/rw05](https://github.com/radforddc/rw05)
+
+```bash
+sudo apt install -y \
+  gcc make libreadline-dev libx11-dev libxext-dev \
+  libgtk2.0-dev libmotif-dev xfonts-75dpi xfonts-100dpi
+cd ~
+git clone https://github.com/radforddc/rw05.git
+cd ~/rw05/src
+cp Makefile.linux Makefile
+make all
+make gtk
+sed -i 's/[[:space:]]-lXp//g' Makefile
+make xm
+```
+
+Add RadWare to future terminal sessions:
+
+```bash
+cat >> ~/.bashrc <<'EOF'
+
+# RadWare
+export RADWARE_FONT_LOC="$HOME/rw05/font"
+export RADWARE_ICC_LOC="$HOME/rw05/icc"
+export RADWARE_GFONLINE_LOC="$HOME/rw05/doc"
+export RADWARE_CURSOR_BELL=n
+export RADWARE_OVERWRITE_FILE=ask
+export RADWARE_AWAIT_RETURN=n
+export RADWARE_XMG_SIZE=600x500
+export PATH="$PATH:$HOME/rw05/src"
+EOF
+```
+
+Open a new terminal and test:
+
+```bash
+xmesc
+```
+
+## Geant4
+
+Original project: [Geant4 at CERN](https://geant4.web.cern.ch/)
+
+Install the build requirements:
+
+```bash
+sudo apt install -y \
+  cmake g++ libxerces-c-dev libglu1-mesa-dev libxmu-dev \
+  qt6-base-dev libqt6opengl6-dev
+```
+
+Download and configure Geant4 11.4.2:
+
+```bash
+mkdir -p ~/G4
+cd ~/G4
+wget https://gitlab.cern.ch/geant4/geant4/-/archive/v11.4.2/geant4-v11.4.2.tar.gz
+tar -xzf geant4-v11.4.2.tar.gz
+
+cmake -S ~/G4/geant4-v11.4.2 -B ~/G4/geant4-v11.4.2-build \
+  -DCMAKE_INSTALL_PREFIX="$HOME/G4/geant4-v11.4.2-install" \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DGEANT4_BUILD_MULTITHREADED=ON \
+  -DGEANT4_INSTALL_DATA=ON \
+  -DGEANT4_USE_QT=ON \
+  -DGEANT4_USE_OPENGL_X11=ON \
+  -DGEANT4_USE_GDML=ON
+```
+
+Build and install:
+
+```bash
+cmake --build ~/G4/geant4-v11.4.2-build --parallel 4
+cmake --install ~/G4/geant4-v11.4.2-build
+printf '\n# Geant4 11.4.2\nsource "$HOME/G4/geant4-v11.4.2-install/bin/geant4.sh"\n' >> ~/.bashrc
+```
+
+Test in a new terminal:
 
 ```bash
 geant4-config --version
 geant4-config --features
 ```
 
-Test the installation using Geant4's Basic Example B1:
+## CUBIX
+
+Original project: [IP2I Gamma CUBIX](https://gitlab.in2p3.fr/ip2igamma/cubix/cubix)
+
+CUBIX is a ROOT-based graphical program for gamma-ray spectroscopy. Its requirements and installation procedure can change with ROOT and TkN releases. Follow the current [CUBIX installation guide](https://cubix.in2p3.fr/install/install/) and clone the project from its original GitLab repository. Do not copy a CUBIX source tree into this repository.
+
+## Nilsson code
+
+Original project: [wimmer-k/Nilsson](https://github.com/wimmer-k/Nilsson)
 
 ```bash
-mkdir -p "$HOME/software/geant4/examples/B1-build"
-cp -r "$HOME/software/geant4/source/examples/basic/B1" \
-      "$HOME/software/geant4/examples/"
-
-cmake -S "$HOME/software/geant4/examples/B1" \
-      -B "$HOME/software/geant4/examples/B1-build" \
-      -DCMAKE_PREFIX_PATH="$HOME/software/geant4/install"
-
-cmake --build "$HOME/software/geant4/examples/B1-build" --parallel
-cd "$HOME/software/geant4/examples/B1-build"
-./exampleB1
-```
-
-In the Geant4 session, run:
-
-```text
-/run/beamOn 10
-```
-
-Consult the current [Geant4 Installation Guide](https://geant4.web.cern.ch/documentation/dev/ig_html/InstallationGuide/) for supported compilers and build options.
-
-## 6. Install GOSIA
-
-GOSIA is distributed separately and is not included in this repository. Obtain the source from the [GOSIA distribution page](https://www.ikp.uni-koeln.de/~warr/gosia/) or directly from its maintainers.
-
-Install the current GNU Fortran compiler:
-
-```bash
-sudo apt update
-sudo apt install --yes gfortran
-```
-
-Move the downloaded source to a dedicated directory, adjusting the filename if necessary:
-
-```bash
-mkdir -p "$HOME/software/gosia"
-mv "$HOME/Downloads/gosia_20110524.9.f" "$HOME/software/gosia/"
-cd "$HOME/software/gosia"
-```
-
-Compile legacy fixed-form Fortran source with:
-
-```bash
-gfortran -O2 -std=legacy -ffixed-line-length-none \
-  -o gosia gosia_20110524.9.f
-```
-
-Run GOSIA with an input file:
-
-```bash
-./gosia < filename.inp
-```
-
-Sample material may also be available from the [GOSIA support page](http://www.pas.rochester.edu/~cline/Gosia/). Yield-integration scripts are available from [UWCNuclear/IntegratedYields](https://github.com/UWCNuclear/IntegratedYields); review that repository's instructions and licence separately.
-
-## 7. Install GREMLIN
-
-GREMLIN is distributed separately and its source is not included here. Obtain `gremlin.f` from an authorised GOSIA/GREMLIN distribution.
-
-Install the compiler:
-
-```bash
-sudo apt update
-sudo apt install --yes gfortran
-```
-
-Compile the fixed-form legacy source:
-
-```bash
-mkdir -p "$HOME/software/gremlin"
-mv "$HOME/Downloads/gremlin.f" "$HOME/software/gremlin/"
-cd "$HOME/software/gremlin"
-
-gfortran -O2 -std=legacy -ffixed-line-length-none \
-  -o gremlin gremlin.f
-```
-
-The `-ffixed-line-length-none` option prevents long fixed-form source lines from being truncated at column 72. This is preferable to manually changing valid expressions merely to shorten their lines.
-
-Test the executable:
-
-```bash
-./gremlin
-```
-
-Compiler warnings from legacy Fortran are possible, but compilation errors must be investigated rather than ignored.
-
-## 8. Install RadWare
-
-Install the required compilers and graphical libraries:
-
-```bash
-sudo apt update
-sudo apt install --yes \
-  build-essential git libreadline-dev libgtk2.0-dev \
-  libmotif-dev libxpm-dev libxt-dev libxext-dev \
-  xfonts-75dpi xfonts-100dpi
-```
-
-Download the Linux/Unix RadWare source:
-
-```bash
-cd "$HOME"
-git clone https://github.com/radforddc/rw05.git
-cd "$HOME/rw05/src"
-cp Makefile.linux Makefile
-```
-
-Open `Makefile` in your preferred editor. Set the installation directory to:
-
-```makefile
-INSTALL_DIR = ${HOME}/rw05
-```
-
-If the linker cannot find `libXp`, remove or comment out only the `-lXp` entries specified by the current Makefile documentation. Avoid adding `-o USERNAME -g users` to the install commands; installing inside your home directory does not require changing file ownership.
-
-Build the standard programs and the graphical variants you need:
-
-```bash
-make all
-make gtk
-make xm
-```
-
-Add the RadWare environment variables once:
-
-```bash
-cat >> "$HOME/.bashrc" <<'EOF'
-
-# RadWare
-export RADWARE_FONT_LOC="$HOME/rw05/font"
-export RADWARE_ICC_LOC="$HOME/rw05/icc"
-export RADWARE_GFONLINE_LOC="$HOME/rw05/doc"
-export PATH="$PATH:$HOME/rw05/src"
-export RADWARE_CURSOR_BELL=n
-export RADWARE_OVERWRITE_FILE=ask
-export RADWARE_AWAIT_RETURN=n
-export RADWARE_XMG_SIZE=600x500
-EOF
-
-source "$HOME/.bashrc"
-```
-
-Test the installation:
-
-```bash
-xmesc
-```
-
-More information: [RadWare source](https://github.com/radforddc/rw05) and [RadWare documentation](https://radware.phy.ornl.gov/).
-
-## 9. Install NuShellX
-
-NuShellX is distributed separately. Obtain an authorised Linux package and its documentation; do not copy or publish its executables or data files without permission.
-
-After extracting an authorised package as `$HOME/nushellx`, inspect the directory names and then add only the required environment variables:
-
-```bash
-cat >> "$HOME/.bashrc" <<'EOF'
-
-# NuShellX
-export NUSHELLX_HOME="$HOME/nushellx"
-export PATH="$NUSHELLX_HOME/linux/nushellx-gfortran-bin:$PATH"
-export nushellx_sps="$NUSHELLX_HOME/sps/"
-export mass_data="$NUSHELLX_HOME/toi/mass-data/"
-export toi_data="$NUSHELLX_HOME/toi/toi-data/"
-EOF
-
-source "$HOME/.bashrc"
-chmod u+x "$HOME"/nushellx/linux/nushellx-gfortran-bin/*
-```
-
-Do not add cluster-specific aliases such as `qstat`, `checknode`, or aliases that replace standard commands unless your local computing centre explicitly requires them. Consult `nushellx/help/help.pdf` supplied with the authorised package.
-
-## 10. Install Python and Jupyter
-
-Use an isolated virtual environment rather than installing scientific packages globally:
-
-```bash
-python3 -m venv "$HOME/venvs/nuclear-physics"
-source "$HOME/venvs/nuclear-physics/bin/activate"
+cd ~
+git clone https://github.com/wimmer-k/Nilsson.git
+python3 -m venv ~/venvs/nilsson
+source ~/venvs/nilsson/bin/activate
 python -m pip install --upgrade pip
-python -m pip install numpy scipy matplotlib pandas jupyterlab uproot
-```
-
-Start JupyterLab:
-
-```bash
-jupyter lab
-```
-
-Leave the environment with:
-
-```bash
+python -m pip install numpy matplotlib
+cd ~/Nilsson
+python nilsson.py -N 2
 deactivate
 ```
 
-## 11. Troubleshooting and maintenance
+The upstream repository did not display a licence file when this guide was prepared. Check with the author before redistributing or modifying the code.
 
-Show the Ubuntu release and architecture:
+## Nuclear Chart Plotter
 
-```bash
-lsb_release -a
-uname -m
-```
-
-The architecture should normally be `x86_64` on a 64-bit Intel or AMD machine.
-
-Update Ubuntu packages:
+Original project: [jonas-ka/nuclear-chart-plotter](https://github.com/jonas-ka/nuclear-chart-plotter)
 
 ```bash
-sudo apt update
-sudo apt full-upgrade
+cd ~
+git clone https://github.com/jonas-ka/nuclear-chart-plotter.git
+source ~/venvs/nuclear-physics/bin/activate
+python -m pip install pandas numpy matplotlib jupyter
+cd ~/nuclear-chart-plotter
+jupyter lab
 ```
 
-When reporting a problem, include:
+This project is released under the [MIT License](https://github.com/jonas-ka/nuclear-chart-plotter/blob/master/LICENSE), copyright Jonas Karthein. The copyright notice and licence must remain with copies or substantial portions of the software.
 
-- Ubuntu release
-- software version or Git commit
-- compiler and CMake versions
-- the command that failed
-- the complete error message
+## Python and JupyterLab
 
-## Scope and acknowledgement
+```bash
+sudo apt install -y python3-venv python3-pip
+python3 -m venv ~/venvs/nuclear-physics
+source ~/venvs/nuclear-physics/bin/activate
+python -m pip install --upgrade pip
+python -m pip install numpy scipy matplotlib pandas jupyterlab uproot awkward iminuit
+```
 
-This is an independently written guide maintained by [Siddharth Doshi](https://github.com/sid70630). It was motivated by the public [UWCNuclear UbuntuSetUp repository](https://github.com/UWCNuclear/UbuntuSetUp), but it does not reproduce that repository's documentation or bundled source files.
+Test:
 
-Product names and external projects belong to their respective owners. Always consult each project's licence and official documentation before redistributing its code.
+```bash
+python -c 'import numpy, scipy, matplotlib, pandas, uproot, awkward, iminuit; print("Scientific Python imports: OK")'
+jupyter lab --version
+deactivate
+```
+
+## LISE++
+
+Original project and downloads: [LISE++ at FRIB](https://lise.frib.msu.edu/)
+
+LISE++ is freeware distributed under the [LISE++ user licence](https://lise.frib.msu.edu/doc/License.pdf). Read and accept the current licence, then use the Linux instructions supplied on the official site. The toolkit does not download or redistribute LISE++.
+
+## NuShellX
+
+NuShellX is distributed separately by its authors and is not downloaded by this repository. Obtain an authorised copy and follow the instructions supplied with it.
+
+[NUTBAR](https://github.com/ragnarstroberg/nutbar) is a separate companion program. It is not NuShellX.
+
+## Licences and references
+
+This repository contains installation notes and scripts. It does not redistribute the source code or binaries of the programs listed above. Each program remains subject to its own licence, citation requirements and documentation.
+
+See [THIRD_PARTY.md](THIRD_PARTY.md) before redistributing any downloaded program.
+
+This guide was initially adapted from [UWCNuclear/UbuntuSetUp](https://github.com/UWCNuclear/UbuntuSetUp). The commands were subsequently retested and revised for native Ubuntu 24.04 LTS.

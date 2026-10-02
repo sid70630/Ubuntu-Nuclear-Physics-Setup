@@ -174,6 +174,5 @@ if [ -f "$HOME/G4/geant4-v11.4.2-install/bin/geant4.sh" ]; then
 fi'
 
 echo
-echo "Toolkit installation complete."
-echo "LISE++ is a separate manual installation. See README.md."
+echo "Installation complete."
 echo "Open a new terminal and run: bash check-installation.sh"

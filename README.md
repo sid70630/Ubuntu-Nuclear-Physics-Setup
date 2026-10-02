@@ -34,9 +34,9 @@ Run the complete installer:
 bash install-toolkit.sh
 ```
 
-It installs ROOT, GRSISort, GOSIA/GOSIA2, GREMLIN, RadWare, the Python environment, the Nilsson code, Nuclear Chart Plotter, CUBIX and Geant4. Existing source directories are kept. Geant4 takes the longest to compile.
+It installs ROOT, GRSISort, GOSIA/GOSIA2, GREMLIN, RadWare, the Python environment, the Nilsson code, Nuclear Chart Plotter, CUBIX and Geant4. 
 
-LISE++ remains a manual installation because its download is licence-controlled and its website may block command-line downloads.
+LISE++ needs to be installed manually.
 
 Check all installations with:
 
@@ -44,11 +44,9 @@ Check all installations with:
 bash check-installation.sh
 ```
 
-Environment scripts are loaded silently. Opening a terminal should not print CUBIX or other setup messages.
-
 ## ROOT
 
-ROOT is a data-analysis framework widely used in nuclear and particle physics. It provides histogramming, fitting, visualisation, C++ analysis and PyROOT.
+ROOT is a data-analysis framework widely used for histogramming, fitting, visualisation, C++ analysis and PyROOT.
 
 Ref: [CERN ROOT](https://root.cern/)
 
@@ -87,11 +85,11 @@ python3 -c 'import ROOT; print("PyROOT test:", ROOT.gROOT.GetVersion())'
 
 ## GRSISort
 
-GRSISort is a ROOT-based analysis framework developed for GRIFFIN data. It provides detector classes, calibration tools, event building, sorting and histogramming.
+GRSISort is a ROOT-based analysis framework developed for GRIFFIN data. It is useful for calibration, event building, sorting and histogramming.
 
 Ref: [GRIFFINCollaboration/GRSISort](https://github.com/GRIFFINCollaboration/GRSISort)
 
-ROOT must be installed first.
+Note : ROOT must be installed first.
 
 ```bash
 sudo apt install -y libblas-dev liblapack-dev
@@ -102,7 +100,7 @@ source ./thisgrsi.sh
 make -j"$(nproc)"
 ```
 
-Add it silently:
+Add:
 
 ```bash
 cat >> ~/.bashrc <<'EOF'
@@ -169,7 +167,7 @@ printf '0\n' | ~/GREMLIN/gremlin
 
 ## RadWare
 
-RadWare contains programs for analysing gamma-ray spectra, coincidence matrices and level schemes. Common tools include GF3, GLS and ESCL8R/XMESC.
+RadWare contains programs for analysing gamma-ray spectra, coincidence matrices and level schemes. Tools: GF3, GLS and ESCL8R/XMESC.
 
 Ref: [radforddc/rw05](https://github.com/radforddc/rw05)  
 Ref: [RadWare documentation](https://radware.phy.ornl.gov/)
@@ -215,7 +213,7 @@ xmesc
 
 ## Python and JupyterLab
 
-This virtual environment provides a separate scientific Python installation for data analysis and plotting. It includes NumPy, SciPy, pandas, Matplotlib, Uproot and JupyterLab.
+It includes NumPy, SciPy, pandas, Matplotlib, Uproot and JupyterLab.
 
 ```bash
 sudo apt install -y python3-venv python3-pip
@@ -233,18 +231,18 @@ jupyter lab --version
 deactivate
 ```
 
-Start it later with:
+Start it with:
 
 ```bash
 source ~/venvs/nuclear-physics/bin/activate
 jupyter lab
 ```
 
-Stop the server with **Ctrl+C**, then run `deactivate`.
+Stop the server with Ctrl+C, then run `deactivate`.
 
 ## Nilsson code
 
-This Python code calculates and plots Nilsson single-particle levels as a function of deformation. It is useful for studying orbital evolution and assigning configurations in deformed nuclei.
+This Python code calculates and plots Nilsson single-particle levels as a function of deformation. 
 
 Ref: [wimmer-k/Nilsson](https://github.com/wimmer-k/Nilsson)
 
@@ -258,7 +256,7 @@ python -m pip install "numpy==1.26.4" "contourpy==1.3.3" matplotlib
 cd ~/Nilsson
 ```
 
-Test the calculation without opening a window:
+Test:
 
 ```bash
 python nilsson.py -N 2 -noplot -w nilsson-test-N2.dat
@@ -275,7 +273,7 @@ The `SyntaxWarning: invalid escape sequence` messages from the current upstream 
 
 ## Nuclear Chart Plotter
 
-Nuclear Chart Plotter is a Jupyter-based tool for producing customised charts of nuclides and nuclear-property plots. It is useful for showing isotope regions, decay information and experimental coverage.
+Nuclear Chart Plotter is a Jupyter-based tool for producing customised charts of nuclides and nuclear-property plots.
 
 Ref: [jonas-ka/nuclear-chart-plotter](https://github.com/jonas-ka/nuclear-chart-plotter)
 
@@ -291,11 +289,11 @@ python -m pip install numpy matplotlib pandas scipy jupyter
 jupyter lab nuclear-chart.ipynb
 ```
 
-The repository contains a notebook rather than an installable Python package. Stop Jupyter with **Ctrl+C**, then run `deactivate`.
+Stop Jupyter with Ctrl+C, then run `deactivate`.
 
 ## CUBIX
 
-CUBIX is a ROOT-based graphical program for gamma-ray spectroscopy. It can display and manipulate spectra, matrices and cubes, perform fits and use the TkN nuclear database.
+CUBIX is a ROOT-based graphical program for gamma-ray spectroscopy. 
 
 Ref: [IP2I Gamma CUBIX](https://gitlab.in2p3.fr/ip2igamma/cubix/cubix)  
 Ref: [CUBIX documentation](https://cubix.in2p3.fr/)
@@ -321,7 +319,7 @@ cmake --build ~/Cubix/cubix-build \
   --parallel 4
 ```
 
-Add it silently:
+Add:
 
 ```bash
 cat >> ~/.bashrc <<'EOF'
@@ -375,7 +373,7 @@ cmake --build ~/G4/geant4-v11.4.2-build --parallel 4
 cmake --install ~/G4/geant4-v11.4.2-build
 ```
 
-Add it silently:
+Add:
 
 ```bash
 cat >> ~/.bashrc <<'EOF'
@@ -397,7 +395,7 @@ geant4-config --features
 
 ## LISE++
 
-LISE++ is used to calculate rare-isotope production, fragment-separator transmission, reaction products, ion optics and energy loss. It is useful when planning radioactive-ion-beam experiments.
+LISE++ is used to calculate rare-isotope production, fragment-separator transmission, reaction products, ion optics and energy loss. 
 
 Ref: [LISE++ at FRIB](https://lise.frib.msu.edu/)  
 Ref: [Linux downloads](https://lise.frib.msu.edu/download/)  
@@ -445,8 +443,8 @@ which lise++
 lise++
 ```
 
-## Notice
+## Note
 
-This repository contains installation notes and scripts written for publicly available scientific software. I do not own the programs linked here. All rights, licences and citation requirements remain with their respective authors. The original reference is given in each section.
+This repository contains installation guide and scripts written for publicly available Software. I do not own the programs. All rights, licences and citation requirements remain with their respective authors. The original references are given in each section.
 
 The guide was initially adapted from [UWCNuclear/UbuntuSetUp](https://github.com/UWCNuclear/UbuntuSetUp) and was retested for native Ubuntu 24.04 LTS.

@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-set -u
 
 pass=0
 missing=0
@@ -28,11 +27,7 @@ check_directory() {
 }
 
 [[ -f "$HOME/root/bin/thisroot.sh" ]] && source "$HOME/root/bin/thisroot.sh" >/dev/null
-if [[ -f "$HOME/GRSISort/thisgrsi.sh" ]]; then
-  set +u
-  source "$HOME/GRSISort/thisgrsi.sh" >/dev/null
-  set -u
-fi
+[[ -f "$HOME/GRSISort/thisgrsi.sh" ]] && source "$HOME/GRSISort/thisgrsi.sh" >/dev/null
 [[ -f "$HOME/Cubix/cubix-install/bin/thiscubix.sh" ]] && source "$HOME/Cubix/cubix-install/bin/thiscubix.sh" >/dev/null
 [[ -f "$HOME/G4/geant4-v11.4.2-install/bin/geant4.sh" ]] && source "$HOME/G4/geant4-v11.4.2-install/bin/geant4.sh" >/dev/null
 export PATH="$HOME/.local/bin:$HOME/GOSIA:$HOME/GREMLIN:$HOME/rw05/src:$PATH"

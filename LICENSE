@@ -3,11 +3,11 @@ MIT License
 Copyright (c) 2026 Siddharth Doshi
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
-of this installation guide and its original scripts (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+of the original material authored by Siddharth Doshi in this repository (the
+"Software"), to deal in the Software without restriction, including without
+limitation the rights to use, copy, modify, merge, publish, distribute,
+sublicense, and/or sell copies of the Software, and to permit persons to whom
+the Software is furnished to do so, subject to the following conditions:
 
 The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
@@ -20,7 +20,18 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-This licence applies only to this repository's installation notes and original
-scripts. It does not apply to the third-party scientific programs linked by
-the guide. Those programs remain the property of their respective authors and
-are subject to their own licences and citation requirements.
+Scope
+
+This licence applies only to original installation notes and scripts authored
+by Siddharth Doshi for this repository.
+
+It does not apply to third-party scientific software, documentation, source
+code, binaries, or other material linked from or referred to by this
+repository. Those materials remain subject to the rights, licences and
+citation requirements of their respective authors.
+
+Parts of the installation guide were initially adapted from:
+https://github.com/UWCNuclear/UbuntuSetUp
+
+No ownership or licence is claimed over material originating from that
+repository or from any other third-party source.

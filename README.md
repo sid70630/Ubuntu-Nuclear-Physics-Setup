@@ -2,7 +2,7 @@
 
 Installation notes for nuclear-physics software on native Ubuntu 24.04 LTS.
 
-These commands were tested on Ubuntu 24.04.2 LTS (x86_64). The programs are downloaded from their developers' websites or repositories. This repository does not contain or redistribute their source code or binaries.
+These commands worked for me on my Ubuntu 24.04.2 LTS (x86_64) setup. The programs are downloaded from their developers' websites or repositories. This repository does not contain or redistribute their source code or binaries.
 
 ## Contents
 
@@ -393,7 +393,7 @@ geant4-config --features
 
 ## LISE++
 
-LISE++ is used to calculate rare-isotope production, fragment-separator transmission, reaction products, ion optics and energy loss. 
+LISE++ is used to calculate rare-isotope production, fragment-separator transmission, reaction products, ion optics and energy loss. Install the code from :
 
 Ref: [LISE++ at FRIB](https://lise.frib.msu.edu/)  
 Ref: [Linux downloads](https://lise.frib.msu.edu/download/)  
@@ -451,4 +451,4 @@ lise++
 
 This repository contains installation guide and scripts written for publicly available Software. I do not own the programs. All rights, licences and citation requirements remain with their respective authors. The original references are given in each section.
 
-The guide was initially adapted from [UWCNuclear/UbuntuSetUp](https://github.com/UWCNuclear/UbuntuSetUp) and was retested for native Ubuntu 24.04 LTS.
+The guide was adapted from [UWCNuclear/UbuntuSetUp](https://github.com/UWCNuclear/UbuntuSetUp).

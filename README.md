@@ -269,8 +269,6 @@ Test the plot:
 python nilsson.py -N 2
 ```
 
-The `SyntaxWarning: invalid escape sequence` messages from the current upstream code do not stop the calculation. NumPy is pinned because the tested code is not compatible with NumPy 2.x.
-
 ## Nuclear Chart Plotter
 
 Nuclear Chart Plotter is a Jupyter-based tool for producing customised charts of nuclides and nuclear-property plots.
@@ -401,21 +399,27 @@ Ref: [LISE++ at FRIB](https://lise.frib.msu.edu/)
 Ref: [Linux downloads](https://lise.frib.msu.edu/download/)  
 Ref: [LISE++ user licence](https://lise.frib.msu.edu/doc/License.pdf)
 
-Read the licence and download the current Linux Debian package through a web browser. Direct `wget` requests may download an Incapsula HTML page instead of the package.
-
-Before installing, verify the download:
+Read the licence and open the official Linux download page:
 
 ```bash
-cd ~/Downloads
+mkdir -p ~/LISE
+firefox https://lise.frib.msu.edu/download/
+```
+
+Download the current Debian package using the browser. Direct `wget` requests may download an Incapsula HTML page instead of the package.
+
+Move the downloaded file into `~/LISE`, verify it and install it:
+
+```bash
+mv ~/Downloads/lise-app*.deb ~/LISE/
+cd ~/LISE
+
 file lise-app*.deb
 dpkg-deb --info lise-app*.deb | head
-```
-
-The file must be reported as a Debian binary package, not an HTML document. Install it with:
-
-```bash
 sudo apt install ./lise-app*.deb
 ```
+
+The `file` command must report a Debian binary package. Do not run the installation if it reports an HTML document.
 
 If LISE++ reports that `Qt_6.7` is missing even though the package contains its own Qt libraries, create a local launcher:
 

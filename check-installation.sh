@@ -28,7 +28,7 @@ check_directory() {
 }
 
 [[ -f "$HOME/root/bin/thisroot.sh" ]] && source "$HOME/root/bin/thisroot.sh" >/dev/null
-[[ -f "$HOME/GRSISort/thisgrsi.sh" ]] && source "$HOME/GRSISort/thisgrsi.sh" >/dev/null
+if [[ -f "$HOME/GRSISort/thisgrsi.sh" ]]; then\n  set +u\n  source "$HOME/GRSISort/thisgrsi.sh" >/dev/null\n  set -u\nfi
 [[ -f "$HOME/Cubix/cubix-install/bin/thiscubix.sh" ]] && source "$HOME/Cubix/cubix-install/bin/thiscubix.sh" >/dev/null
 [[ -f "$HOME/G4/geant4-v11.4.2-install/bin/geant4.sh" ]] && source "$HOME/G4/geant4-v11.4.2-install/bin/geant4.sh" >/dev/null
 export PATH="$HOME/.local/bin:$HOME/GOSIA:$HOME/GREMLIN:$HOME/rw05/src:$PATH"

@@ -1,51 +1,56 @@
 # Ubuntu Nuclear Physics Setup
 
-Installation notes for nuclear-physics software on a native Ubuntu 24.04 LTS system.
+Installation notes for nuclear-physics software on native Ubuntu 24.04 LTS.
 
-The commands in this repository were tested on Ubuntu 24.04.2 LTS (x86_64). Install one program at a time when diagnosing a problem. The toolkit installer is provided for a new machine after the individual procedures have been reviewed.
+These commands were tested on Ubuntu 24.04.2 LTS (x86_64). The programs are downloaded from their developers' websites or repositories. This repository does not contain or redistribute their source code or binaries.
 
 ## Contents
 
-- [Install everything](#install-everything)
+- [Install the toolkit](#install-the-toolkit)
 - [ROOT](#root)
 - [GRSISort](#grsisort)
 - [GOSIA and GOSIA2](#gosia-and-gosia2)
 - [GREMLIN](#gremlin)
 - [RadWare](#radware)
-- [Geant4](#geant4)
-- [CUBIX](#cubix)
+- [Python and JupyterLab](#python-and-jupyterlab)
 - [Nilsson code](#nilsson-code)
 - [Nuclear Chart Plotter](#nuclear-chart-plotter)
-- [Python and JupyterLab](#python-and-jupyterlab)
+- [CUBIX](#cubix)
+- [Geant4](#geant4)
 - [LISE++](#lise)
-- [NuShellX](#nushellx)
-- [Licences and references](#licences-and-references)
 
-## Install everything
+## Install the toolkit
 
-Clone this repository and run:
+Clone this repository:
 
 ```bash
 git clone https://github.com/sid70630/Ubuntu-Nuclear-Physics-Setup.git
 cd Ubuntu-Nuclear-Physics-Setup
+```
+
+Run the complete installer:
+
+```bash
 bash install-toolkit.sh
 ```
 
-The script installs each supported package in sequence. Existing installation directories are not overwritten. Geant4 is included and can take a long time to compile. LISE++, NuShellX and CUBIX remain manual steps.
+It installs ROOT, GRSISort, GOSIA/GOSIA2, GREMLIN, RadWare, the Python environment, the Nilsson code, Nuclear Chart Plotter, CUBIX and Geant4. Existing source directories are kept. Geant4 takes the longest to compile.
 
-Check the installation at any time with:
+LISE++ remains a manual installation because its download is licence-controlled and its website may block command-line downloads.
+
+Check all installations with:
 
 ```bash
 bash check-installation.sh
 ```
 
-Open a new terminal after the installer finishes.
+Environment scripts are loaded silently. Opening a terminal should not print CUBIX or other setup messages.
 
 ## ROOT
 
-Original project: [CERN ROOT](https://root.cern/)
+ROOT is a data-analysis framework widely used in nuclear and particle physics. It provides histogramming, fitting, visualisation, C++ analysis and PyROOT.
 
-Install the required packages:
+Ref: [CERN ROOT](https://root.cern/)
 
 ```bash
 sudo apt update
@@ -53,21 +58,23 @@ sudo apt install -y \
   binutils cmake dpkg-dev g++ gcc git wget \
   libssl-dev libx11-dev libxext-dev libxft-dev libxpm-dev \
   python3 libtbb-dev libvdt-dev libgif-dev
-```
 
-Download the Ubuntu 24.04 binary release used in this guide:
-
-```bash
 cd ~
 wget https://root.cern/download/root_v6.32.24.Linux-ubuntu24.04-x86_64-gcc13.3.tar.gz
 tar -xzf root_v6.32.24.Linux-ubuntu24.04-x86_64-gcc13.3.tar.gz
 source ~/root/bin/thisroot.sh
 ```
 
-Add ROOT to future terminal sessions:
+Add ROOT to new terminals:
 
 ```bash
-printf '\n# CERN ROOT 6.32.24\nsource "$HOME/root/bin/thisroot.sh"\n' >> ~/.bashrc
+cat >> ~/.bashrc <<'EOF'
+
+# CERN ROOT 6.32.24
+if [ -f "$HOME/root/bin/thisroot.sh" ]; then
+    source "$HOME/root/bin/thisroot.sh" >/dev/null
+fi
+EOF
 ```
 
 Test:
@@ -78,13 +85,13 @@ root -l -b -q -e 'std::cout << "ROOT test: " << gROOT->GetVersion() << std::endl
 python3 -c 'import ROOT; print("PyROOT test:", ROOT.gROOT.GetVersion())'
 ```
 
-See the [ROOT installation page](https://root.cern/install/) before using another Ubuntu or compiler version.
-
 ## GRSISort
 
-Original project: [GRIFFINCollaboration/GRSISort](https://github.com/GRIFFINCollaboration/GRSISort)
+GRSISort is a ROOT-based analysis framework developed for GRIFFIN data. It provides detector classes, calibration tools, event building, sorting and histogramming.
 
-GRSISort requires ROOT.
+Ref: [GRIFFINCollaboration/GRSISort](https://github.com/GRIFFINCollaboration/GRSISort)
+
+ROOT must be installed first.
 
 ```bash
 sudo apt install -y libblas-dev liblapack-dev
@@ -95,22 +102,31 @@ source ./thisgrsi.sh
 make -j"$(nproc)"
 ```
 
-Add GRSISort to future terminal sessions:
+Add it silently:
 
 ```bash
-printf '\n# GRSISort\nsource "$HOME/GRSISort/thisgrsi.sh"\n' >> ~/.bashrc
+cat >> ~/.bashrc <<'EOF'
+
+# GRSISort
+if [ -f "$HOME/GRSISort/thisgrsi.sh" ]; then
+    source "$HOME/GRSISort/thisgrsi.sh" >/dev/null
+fi
+EOF
 ```
 
 Test:
 
 ```bash
 grsisort --version
-ldd "$(command -v grsisort)" | grep "not found" || echo "No missing libraries"
+ldd "$(command -v grsisort)" | grep "not found" || echo "GRSISort: no missing libraries"
 ```
 
 ## GOSIA and GOSIA2
 
-Source archive: [GOSIA versions maintained by Nigel Warr](https://apps.ikp.uni-koeln.de/~warr/gosia/)
+GOSIA fits Coulomb-excitation data to determine electromagnetic matrix elements. GOSIA2 extends the analysis to simultaneous projectile and target excitation.
+
+Ref: [GOSIA source archive](https://apps.ikp.uni-koeln.de/~warr/gosia/)  
+Ref: [GOSIA project page](https://www.slcj.uw.edu.pl/en/gosia-code/)
 
 ```bash
 sudo apt install -y gfortran
@@ -130,11 +146,11 @@ ldd ~/GOSIA/gosia | grep "not found" || echo "GOSIA: no missing libraries"
 ldd ~/GOSIA/gosia2 | grep "not found" || echo "GOSIA2: no missing libraries"
 ```
 
-The [GOSIA project page](https://www.slcj.uw.edu.pl/en/gosia-code/) should also be consulted for documentation and references.
-
 ## GREMLIN
 
-Original source: [GREMLIN on the Rochester GOSIA page](https://www.pas.rochester.edu/~cline/Research/GOSIA.htm)
+GREMLIN fits gamma-ray efficiency calibrations and calculates line intensities. It is useful when converting measured peak areas into efficiency-corrected intensities.
+
+Ref: [Rochester GOSIA page](https://www.pas.rochester.edu/~cline/Research/GOSIA.htm)
 
 ```bash
 sudo apt install -y gfortran
@@ -153,12 +169,16 @@ printf '0\n' | ~/GREMLIN/gremlin
 
 ## RadWare
 
-Original project: [radforddc/rw05](https://github.com/radforddc/rw05)
+RadWare contains programs for analysing gamma-ray spectra, coincidence matrices and level schemes. Common tools include GF3, GLS and ESCL8R/XMESC.
+
+Ref: [radforddc/rw05](https://github.com/radforddc/rw05)  
+Ref: [RadWare documentation](https://radware.phy.ornl.gov/)
 
 ```bash
 sudo apt install -y \
   gcc make libreadline-dev libx11-dev libxext-dev \
   libgtk2.0-dev libmotif-dev xfonts-75dpi xfonts-100dpi
+
 cd ~
 git clone https://github.com/radforddc/rw05.git
 cd ~/rw05/src
@@ -169,7 +189,7 @@ sed -i 's/[[:space:]]-lXp//g' Makefile
 make xm
 ```
 
-Add RadWare to future terminal sessions:
+Add the environment:
 
 ```bash
 cat >> ~/.bashrc <<'EOF'
@@ -182,101 +202,20 @@ export RADWARE_CURSOR_BELL=n
 export RADWARE_OVERWRITE_FILE=ask
 export RADWARE_AWAIT_RETURN=n
 export RADWARE_XMG_SIZE=600x500
-export PATH="$PATH:$HOME/rw05/src"
+export PATH="$HOME/rw05/src:$PATH"
 EOF
 ```
 
-Open a new terminal and test:
+Test:
 
 ```bash
+source ~/.bashrc
 xmesc
 ```
 
-## Geant4
-
-Original project: [Geant4 at CERN](https://geant4.web.cern.ch/)
-
-Install the build requirements:
-
-```bash
-sudo apt install -y \
-  cmake g++ libxerces-c-dev libglu1-mesa-dev libxmu-dev \
-  qt6-base-dev libqt6opengl6-dev
-```
-
-Download and configure Geant4 11.4.2:
-
-```bash
-mkdir -p ~/G4
-cd ~/G4
-wget https://gitlab.cern.ch/geant4/geant4/-/archive/v11.4.2/geant4-v11.4.2.tar.gz
-tar -xzf geant4-v11.4.2.tar.gz
-
-cmake -S ~/G4/geant4-v11.4.2 -B ~/G4/geant4-v11.4.2-build \
-  -DCMAKE_INSTALL_PREFIX="$HOME/G4/geant4-v11.4.2-install" \
-  -DCMAKE_BUILD_TYPE=Release \
-  -DGEANT4_BUILD_MULTITHREADED=ON \
-  -DGEANT4_INSTALL_DATA=ON \
-  -DGEANT4_USE_QT=ON \
-  -DGEANT4_USE_OPENGL_X11=ON \
-  -DGEANT4_USE_GDML=ON
-```
-
-Build and install:
-
-```bash
-cmake --build ~/G4/geant4-v11.4.2-build --parallel 4
-cmake --install ~/G4/geant4-v11.4.2-build
-printf '\n# Geant4 11.4.2\nsource "$HOME/G4/geant4-v11.4.2-install/bin/geant4.sh"\n' >> ~/.bashrc
-```
-
-Test in a new terminal:
-
-```bash
-geant4-config --version
-geant4-config --features
-```
-
-## CUBIX
-
-Original project: [IP2I Gamma CUBIX](https://gitlab.in2p3.fr/ip2igamma/cubix/cubix)
-
-CUBIX is a ROOT-based graphical program for gamma-ray spectroscopy. Its requirements and installation procedure can change with ROOT and TkN releases. Follow the current [CUBIX installation guide](https://cubix.in2p3.fr/install/install/) and clone the project from its original GitLab repository. Do not copy a CUBIX source tree into this repository.
-
-## Nilsson code
-
-Original project: [wimmer-k/Nilsson](https://github.com/wimmer-k/Nilsson)
-
-```bash
-cd ~
-git clone https://github.com/wimmer-k/Nilsson.git
-python3 -m venv ~/venvs/nilsson
-source ~/venvs/nilsson/bin/activate
-python -m pip install --upgrade pip
-python -m pip install numpy matplotlib
-cd ~/Nilsson
-python nilsson.py -N 2
-deactivate
-```
-
-The upstream repository did not display a licence file when this guide was prepared. Check with the author before redistributing or modifying the code.
-
-## Nuclear Chart Plotter
-
-Original project: [jonas-ka/nuclear-chart-plotter](https://github.com/jonas-ka/nuclear-chart-plotter)
-
-```bash
-cd ~
-git clone https://github.com/jonas-ka/nuclear-chart-plotter.git
-source ~/venvs/nuclear-physics/bin/activate
-python -m pip install pandas numpy matplotlib jupyter
-cd ~/nuclear-chart-plotter
-jupyter lab
-```
-
-This project is released under the [MIT License](https://github.com/jonas-ka/nuclear-chart-plotter/blob/master/LICENSE), copyright Jonas Karthein. The copyright notice and licence must remain with copies or substantial portions of the software.
-
 ## Python and JupyterLab
+
+This virtual environment provides a separate scientific Python installation for data analysis and plotting. It includes NumPy, SciPy, pandas, Matplotlib, Uproot and JupyterLab.
 
 ```bash
 sudo apt install -y python3-venv python3-pip
@@ -294,22 +233,220 @@ jupyter lab --version
 deactivate
 ```
 
+Start it later with:
+
+```bash
+source ~/venvs/nuclear-physics/bin/activate
+jupyter lab
+```
+
+Stop the server with **Ctrl+C**, then run `deactivate`.
+
+## Nilsson code
+
+This Python code calculates and plots Nilsson single-particle levels as a function of deformation. It is useful for studying orbital evolution and assigning configurations in deformed nuclei.
+
+Ref: [wimmer-k/Nilsson](https://github.com/wimmer-k/Nilsson)
+
+```bash
+cd ~
+git clone https://github.com/wimmer-k/Nilsson.git
+python3 -m venv ~/venvs/nilsson
+source ~/venvs/nilsson/bin/activate
+python -m pip install --upgrade pip
+python -m pip install "numpy==1.26.4" "contourpy==1.3.3" matplotlib
+cd ~/Nilsson
+```
+
+Test the calculation without opening a window:
+
+```bash
+python nilsson.py -N 2 -noplot -w nilsson-test-N2.dat
+head nilsson-test-N2.dat
+```
+
+Test the plot:
+
+```bash
+python nilsson.py -N 2
+```
+
+The `SyntaxWarning: invalid escape sequence` messages from the current upstream code do not stop the calculation. NumPy is pinned because the tested code is not compatible with NumPy 2.x.
+
+## Nuclear Chart Plotter
+
+Nuclear Chart Plotter is a Jupyter-based tool for producing customised charts of nuclides and nuclear-property plots. It is useful for showing isotope regions, decay information and experimental coverage.
+
+Ref: [jonas-ka/nuclear-chart-plotter](https://github.com/jonas-ka/nuclear-chart-plotter)
+
+```bash
+mkdir -p ~/NuclearChart
+cd ~/NuclearChart
+python3 -m venv nuclear-chart-env
+source nuclear-chart-env/bin/activate
+git clone https://github.com/jonas-ka/nuclear-chart-plotter.git
+cd nuclear-chart-plotter
+python -m pip install --upgrade pip
+python -m pip install numpy matplotlib pandas scipy jupyter
+jupyter lab nuclear-chart.ipynb
+```
+
+The repository contains a notebook rather than an installable Python package. Stop Jupyter with **Ctrl+C**, then run `deactivate`.
+
+## CUBIX
+
+CUBIX is a ROOT-based graphical program for gamma-ray spectroscopy. It can display and manipulate spectra, matrices and cubes, perform fits and use the TkN nuclear database.
+
+Ref: [IP2I Gamma CUBIX](https://gitlab.in2p3.fr/ip2igamma/cubix/cubix)  
+Ref: [CUBIX documentation](https://cubix.in2p3.fr/)
+
+ROOT must be active and include MathMore support.
+
+```bash
+mkdir -p ~/Cubix
+cd ~/Cubix
+git clone https://gitlab.in2p3.fr/ip2igamma/cubix/cubix cubix-sources
+git -C cubix-sources switch --detach v1.5
+
+source ~/root/bin/thisroot.sh
+
+cmake \
+  -S ~/Cubix/cubix-sources \
+  -B ~/Cubix/cubix-build \
+  -DCMAKE_INSTALL_PREFIX="$HOME/Cubix/cubix-install" \
+  -DBUILTIN_TKN=ON
+
+cmake --build ~/Cubix/cubix-build \
+  --target install \
+  --parallel 4
+```
+
+Add it silently:
+
+```bash
+cat >> ~/.bashrc <<'EOF'
+
+# CUBIX
+if [ -f "$HOME/Cubix/cubix-install/bin/thiscubix.sh" ]; then
+    source "$HOME/Cubix/cubix-install/bin/thiscubix.sh" >/dev/null
+fi
+EOF
+```
+
+Test:
+
+```bash
+source ~/Cubix/cubix-install/bin/thiscubix.sh >/dev/null
+cubix-config --version
+tkn-config --version
+ldd "$(command -v cubix)" | grep "not found" || echo "CUBIX: no missing libraries"
+cubix
+```
+
+## Geant4
+
+Geant4 simulates the passage of particles through matter. It is widely used for detector-response, efficiency, shielding and radiation-transport simulations.
+
+Ref: [Geant4 at CERN](https://geant4.web.cern.ch/)  
+Ref: [Geant4 installation guide](https://geant4-userdoc.web.cern.ch/UsersGuides/InstallationGuide/html/)
+
+```bash
+sudo apt install -y \
+  cmake g++ libxerces-c-dev libglu1-mesa-dev libxmu-dev \
+  qt6-base-dev libqt6opengl6-dev
+
+mkdir -p ~/G4
+cd ~/G4
+wget https://gitlab.cern.ch/geant4/geant4/-/archive/v11.4.2/geant4-v11.4.2.tar.gz
+tar -xzf geant4-v11.4.2.tar.gz
+
+cmake --fresh \
+  -S ~/G4/geant4-v11.4.2 \
+  -B ~/G4/geant4-v11.4.2-build \
+  -DCMAKE_INSTALL_PREFIX="$HOME/G4/geant4-v11.4.2-install" \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DGEANT4_BUILD_MULTITHREADED=ON \
+  -DGEANT4_INSTALL_DATA=ON \
+  -DGEANT4_USE_QT=ON \
+  -DGEANT4_USE_OPENGL_X11=ON \
+  -DGEANT4_USE_GDML=ON
+
+cmake --build ~/G4/geant4-v11.4.2-build --parallel 4
+cmake --install ~/G4/geant4-v11.4.2-build
+```
+
+Add it silently:
+
+```bash
+cat >> ~/.bashrc <<'EOF'
+
+# Geant4 11.4.2
+if [ -f "$HOME/G4/geant4-v11.4.2-install/bin/geant4.sh" ]; then
+    source "$HOME/G4/geant4-v11.4.2-install/bin/geant4.sh" >/dev/null
+fi
+EOF
+```
+
+Test:
+
+```bash
+source ~/G4/geant4-v11.4.2-install/bin/geant4.sh
+geant4-config --version
+geant4-config --features
+```
+
 ## LISE++
 
-Original project and downloads: [LISE++ at FRIB](https://lise.frib.msu.edu/)
+LISE++ is used to calculate rare-isotope production, fragment-separator transmission, reaction products, ion optics and energy loss. It is useful when planning radioactive-ion-beam experiments.
 
-LISE++ is freeware distributed under the [LISE++ user licence](https://lise.frib.msu.edu/doc/License.pdf). Read and accept the current licence, then use the Linux instructions supplied on the official site. The toolkit does not download or redistribute LISE++.
+Ref: [LISE++ at FRIB](https://lise.frib.msu.edu/)  
+Ref: [Linux downloads](https://lise.frib.msu.edu/download/)  
+Ref: [LISE++ user licence](https://lise.frib.msu.edu/doc/License.pdf)
 
-## NuShellX
+Read the licence and download the current Linux Debian package through a web browser. Direct `wget` requests may download an Incapsula HTML page instead of the package.
 
-NuShellX is distributed separately by its authors and is not downloaded by this repository. Obtain an authorised copy and follow the instructions supplied with it.
+Before installing, verify the download:
 
-[NUTBAR](https://github.com/ragnarstroberg/nutbar) is a separate companion program. It is not NuShellX.
+```bash
+cd ~/Downloads
+file lise-app*.deb
+dpkg-deb --info lise-app*.deb | head
+```
 
-## Licences and references
+The file must be reported as a Debian binary package, not an HTML document. Install it with:
 
-This repository contains installation notes and scripts. It does not redistribute the source code or binaries of the programs listed above. Each program remains subject to its own licence, citation requirements and documentation.
+```bash
+sudo apt install ./lise-app*.deb
+```
 
-See [THIRD_PARTY.md](THIRD_PARTY.md) before redistributing any downloaded program.
+If LISE++ reports that `Qt_6.7` is missing even though the package contains its own Qt libraries, create a local launcher:
 
-This guide was initially adapted from [UWCNuclear/UbuntuSetUp](https://github.com/UWCNuclear/UbuntuSetUp). The commands were subsequently retested and revised for native Ubuntu 24.04 LTS.
+```bash
+mkdir -p ~/.local/bin
+
+cat > ~/.local/bin/lise++ <<'EOF'
+#!/bin/sh
+unset LD_LIBRARY_PATH
+exec /usr/lib/lise-app/LISE++ "$@"
+EOF
+
+chmod +x ~/.local/bin/lise++
+grep -qxF 'export PATH="$HOME/.local/bin:$PATH"' ~/.bashrc ||
+  printf '\n# User commands\nexport PATH="$HOME/.local/bin:$PATH"\n' >> ~/.bashrc
+
+source ~/.bashrc
+hash -r
+```
+
+Test:
+
+```bash
+which lise++
+lise++
+```
+
+## Notice
+
+This repository contains installation notes and scripts written for publicly available scientific software. I do not own the programs linked here. All rights, licences and citation requirements remain with their respective authors. The original reference is given in each section.
+
+The guide was initially adapted from [UWCNuclear/UbuntuSetUp](https://github.com/UWCNuclear/UbuntuSetUp) and was retested for native Ubuntu 24.04 LTS.

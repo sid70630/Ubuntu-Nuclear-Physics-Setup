@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -Eeuo pipefail
+set -Eeo pipefail
 
 ROOT_VERSION="6.32.24"
 ROOT_ARCHIVE="root_v${ROOT_VERSION}.Linux-ubuntu24.04-x86_64-gcc13.3.tar.gz"
@@ -62,9 +62,7 @@ fi'
 clone_if_missing https://github.com/GRIFFINCollaboration/GRSISort.git "$HOME/GRSISort" --recursive
 git -C "$HOME/GRSISort" submodule update --init --recursive
 cd "$HOME/GRSISort"
-set +u
 source ./thisgrsi.sh >/dev/null
-set -u
 make -j"$JOBS"
 add_block "# GRSISort" '# GRSISort
 if [ -f "$HOME/GRSISort/thisgrsi.sh" ]; then

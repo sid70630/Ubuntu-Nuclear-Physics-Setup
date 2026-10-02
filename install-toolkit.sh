@@ -62,7 +62,9 @@ fi'
 clone_if_missing https://github.com/GRIFFINCollaboration/GRSISort.git "$HOME/GRSISort" --recursive
 git -C "$HOME/GRSISort" submodule update --init --recursive
 cd "$HOME/GRSISort"
-set +u\nsource ./thisgrsi.sh >/dev/null\nset -u
+set +u
+source ./thisgrsi.sh >/dev/null
+set -u
 make -j"$JOBS"
 add_block "# GRSISort" '# GRSISort
 if [ -f "$HOME/GRSISort/thisgrsi.sh" ]; then

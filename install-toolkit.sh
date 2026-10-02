@@ -31,12 +31,10 @@ clone_if_missing() {
 grep -q '^VERSION_ID="24.04"' /etc/os-release || { echo "This installer was tested on Ubuntu 24.04 LTS only."; exit 1; }
 
 cat <<'EOF'
-This installs the tested toolkit under your home directory.
-Existing Git repositories are kept and reused.
-Geant4 and CUBIX may take some time to compile.
-LISE++ must be installed separately after accepting its licence.
+This installs all codes under home directory.
+Existing Git repositories will be kept.
 EOF
-read -r -p "Continue? [y/N] " answer
+read -r -p "Lets Goooo? [y/N] " answer
 [[ "$answer" =~ ^[Yy]$ ]] || exit 0
 
 sudo apt update
